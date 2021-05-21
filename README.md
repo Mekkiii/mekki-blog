@@ -1,3 +1,3 @@
 # My blog site using Next.js and Markdown
 
-<!-- https://blog-site.Mekki.now.sh -->
+http://www.mekki.tk/ or https://mekki.vercel.app/
