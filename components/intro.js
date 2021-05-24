@@ -2,7 +2,7 @@ export default function Intro() {
   return (
     <section className="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
       <h1 className="text-6xl md:text-6xl font-bold tracking-tighter leading-tight md:pr-8">
-        Blog.
+        Mekki
       </h1>
       <div className="flex flex-row items-center flex-no-wrap divide-x mt-4">
         <a href="mailto:mekki@live.cn" target="_blank">
