@@ -9,9 +9,9 @@ author:
 
 ### 怎么修改 elementui 的主题颜色
 
-#### 参考官网
+### 参考官网
 
-Element Plus 的 theme-chalk 使用 SCSS 编写，如果你的项目也使用了 SCSS，那么可以直接在项目中改变 Element Plus 的样式变量。新建一个样式文件，例如 element-variables.scss，写入以下内容：
+> Element Plus 的 theme-chalk 使用 SCSS 编写，如果你的项目也使用了 SCSS，那么可以直接在项目中改变 Element Plus 的样式变量。新建一个样式文件，例如 element-variables.scss，写入以下内容：
 
 ```javascript
 /* 改变主题色变量 */
@@ -21,7 +21,7 @@ $--font-path: '~element-plus/lib/theme-chalk/fonts';
 @import "~element-plus/packages/theme-chalk/src/index";
 ```
 
-之后，在项目的入口文件中，直接引入以上样式文件即可（无需引入 Element Plus 编译好的 CSS 文件）：
+> 之后，在项目的入口文件中，直接引入以上样式文件即可（无需引入 Element Plus 编译好的 CSS 文件）：
 
 ```javascript
 import Vue from 'vue'
@@ -33,9 +33,9 @@ const app = createApp(App)
 app.use(ElementPlus)
 ```
 
-**需要注意的是，覆盖字体路径变量是必需的，将其赋值为 Element Plus 中 icon 图标所在的相对路径即可。**
+> 需要注意的是，覆盖字体路径变量是必需的，将其赋值为 Element Plus 中 icon 图标所在的相对路径即可。
 
-#### element-plus 报错
+### 但是 element-plus 报错
 
 ```javascript
 Error: Can't find stylesheet to import.
@@ -57,9 +57,9 @@ Error: Can't find stylesheet to import.
   formatted: "Error: Can't find stylesheet to import.\n" +
 ```
 
-#### 解决方案
+### 解决方案
 
-**~改成 node_modules/，安装 scss --dev**
+> ~改成 node_modules/，安装 scss --dev
 
 ```javascript
   $--color-primary: #fc9153;
