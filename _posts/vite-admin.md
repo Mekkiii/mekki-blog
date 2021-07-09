@@ -1,17 +1,17 @@
 ---
 title: vite + vue3 + ts + element-plus 踩坑记录
-date: '2021-06-16'
+date: "2021-06-16"
 author:
   name: Mekki
 ---
 
 ###
 
-&nbsp &nbsp &nbsp &nbsp 最近因工作需要，要搭建一个后台管理系统，正好想试一试新技术，决定用```vite + vue3 + ts```来试一试。
+&nbsp &nbsp &nbsp &nbsp 最近因工作需要，要搭建一个后台管理系统，正好想试一试新技术，决定用`vite + vue3 + ts`来试一试。
 
-### 直接用```vite```脚手架搭一个项目
+### 直接用`vite`脚手架搭一个项目
 
-### 为什么用vite
+### 为什么用 vite
 
 **vite 是一个基于 Vue3 单文件组件的非打包开发服务器**，它做到了本地快速开发启动：
 
@@ -19,43 +19,87 @@ author:
 - 即时的热模块更新（hmr），替换性能和模块数量的解耦让更新飞起；
 - 真正的按需编译，不再等待整个应用编译完成，这是一个巨大的改变。
 
-### 创建一个vite项目
+### 创建一个 vite 项目
+
 > 兼容性注意<br>
 > Vite 需要 Node.js 版本 >= 12.0.0。
 
 ```javascript
-# npm 
+# npm
 npm init vite-app <project-name>
 cd <project-name>
-npm install 
+npm install
 npm run dev
 
 # yarn
 yarn create vite-app <project-name>
 cd <project-name>
-yarn 
+yarn
 yarn dev
 ```
+
+### 配置
+
+### vite.config.ts
+
+```
+import path from "path";
+
+const pathResolve = (pathStr: string) => {
+  return path.resolve(__dirname, pathStr);
+}
+
+const config = {
+  base: './',//在生产中服务时的基本公共路径。@default '/'
+  alias: {
+    '/@/': pathResolve('./src'),
+  },
+  outDir: 'vite-init',//构建输出将放在其中。会在构建之前删除旧目录。@default 'dist'
+  minify: 'esbuild',//构建时的压缩方式
+  hostname: 'localhost',//本地启动的服务地址
+  port: '8800',//服务端口号
+  open: false,//启动服务时是否在浏览器打开
+  https: false,//是否开启https
+  ssr: false,//是否服务端渲染
+  optimizeDeps: {// 引入第三方的配置
+    include: ['axios']
+  },
+  // proxy: {//代理配置
+  //   '/api': {
+  //     target: 'http://xx.xx.xx.xx:xxxx',
+  //     changeOrigin: true,
+  //     ws: true,
+  //     rewrite: (path: string) => { path.replace(/^\/api/, '') }
+  //   }
+  // }
+}
+module.exports = config;
+```
+
 ### vue3 知识
+
 **setup**
 
 vue3 中用 setup 函数整合了所有的 api；只执行一次，在生命周期函数前执行，所以在 setup 函数中拿不到当前实例 this，不能用 this 来调用 vue2 写法中定义的方法
 
 它将接受两个参数：props、context
+
 ```
-// props - 组件接受到的属性 context - 上下文 
+// props - 组件接受到的属性 context - 上下文
 setup(props, context) {
   return {
     // 要绑定的数据和方法
   }
 }
 ```
+
 **props**
 
 setup 函数中的 props 是响应式的，当传入新的 prop 时，它将被更新
 但是，因为 props 是响应式的，不能使用 ES6 解构，因为它会消除 prop 的响应性
 
 如果需要解构 prop，可以通过使用 setup 函数中的 toRefs 来安全地完成此操作
+
 ```
 import { toRefs } from 'vue'
 
@@ -64,6 +108,7 @@ setup(props) {
   console.log(title.value)
 }
 ```
+
 **context**
 
 context 暴露三个组件的 property：{ attrs, slots, emit }
@@ -75,6 +120,7 @@ context 暴露三个组件的 property：{ attrs, slots, emit }
 
 因为 setup 是围绕 beforeCreate 和 created 生命周期钩子运行的，所以不需要显式地定义它们
 换句话说，在这两个钩子中编写的任何代码都应该直接在 setup 函数中编写
+
 ```
 setup() {
   onMounted(() => {
@@ -104,15 +150,17 @@ setup() {
   return {}
 }
 ```
+
 **ref、reactive**
 
 ref 可以将某个普通值包装成响应式数据，仅限于简单值，内部是将值包装成对象，再通过 defineProperty 来处理的
-通过 ref 包装的值，取值和设置值的时候，需用通过 .value来进行设置
+通过 ref 包装的值，取值和设置值的时候，需用通过 .value 来进行设置
 可以用 ref 来获取组件的引用，替代 this.$refs 的写法
 
 reactive 对复杂数据进行响应式处理，它的返回值是一个 proxy 对象，在 setup 函数中返回时，可以用 toRefs 对 proxy 对象进行结构，方便在 template 中使用
 
 使用如下：
+
 ```
 <template>
   <div>
@@ -168,6 +216,7 @@ export default {
 }
 </script>
 ```
+
 **computed、watch**
 
 ```
@@ -175,6 +224,7 @@ export default {
 let sum = computed(() => dataObj.todoList.length + eleList.value.length)
 console.log('setup引用computed要.value：' + sum.value)
 ```
+
 ```
 // watch
 watch(
@@ -187,14 +237,17 @@ watch(
   }
 )
 ```
+
 **watchEffect**
 
 响应式地跟踪函数中引用的响应式数据，当响应式数据改变时，会重新执行函数
+
 ```
 const count = ref(0)
 // 当 count 的值被修改时，会执行回调
 const stop = watchEffect(() => console.log(count.value))
 ```
+
 ```
 // 停止监听
 stop()
@@ -204,6 +257,7 @@ stop()
 
 const unwatch = this.$watch('say', curVal => {})
 ```
+
 ```
 // 停止监听
 unwatch()
@@ -213,12 +267,14 @@ import {useRoute, useRouter} from 'vue-router'
 const route = useRoute() // 相当于 vue2 中的 this.$route
 const router = useRouter() // 相当于 vue2 中的 this.$router
 ```
-route   用于获取当前路由数据
-router  用于路由跳转
+
+route 用于获取当前路由数据
+router 用于路由跳转
 
 **vuex**
 
 使用 useStore 来获取 store 对象 从 vuex 中取值时，要注意必须使用 computed 进行包装，这样 vuex 中状态修改后才能在页面中响应
+
 ```
 import {useStore} from 'vuex'
 
@@ -226,11 +282,12 @@ setup(){
   const store = useStore() // 相当于 vue2 中的 this.$store
   store.dispatch() // 通过 store 对象来 dispatch 派发异步任务
   store.commit() // commit 修改 store 数据
-    
+
   let category = computed(() => store.state.home.currentCagegory
   return { category }
 }
 ```
+
 ### 怎么修改 Element Plus 的主题颜色
 
 ### 参考官网
@@ -248,13 +305,13 @@ $--font-path: '~element-plus/lib/theme-chalk/fonts';
 > 之后，在项目的入口文件中，直接引入以上样式文件即可（无需引入 Element Plus 编译好的 CSS 文件）：
 
 ```javascript
-import Vue from 'vue'
-import ElementPlus from 'element-plus'
-import './element-variables.scss'
-import App from './App.vue'
+import Vue from "vue";
+import ElementPlus from "element-plus";
+import "./element-variables.scss";
+import App from "./App.vue";
 
-const app = createApp(App)
-app.use(ElementPlus)
+const app = createApp(App);
+app.use(ElementPlus);
 ```
 
 > 需要注意的是，覆盖字体路径变量是必需的，将其赋值为 Element Plus 中 icon 图标所在的相对路径即可。
